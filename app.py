@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import yfinance as yf
 from datetime import datetime, timedelta
 import pandas as pd
@@ -9,8 +9,10 @@ app = Flask(__name__)
 
 @app.route('/bitcoin_price', methods=['GET'])
 def get_bitcoin_price():
+    days = request.args.get('days', default=365, type=int)
+    
     end_date = datetime.now()
-    start_date = end_date - timedelta(days=1*365)
+    start_date = end_date - timedelta(days=days)
 
     btc_data = yf.Ticker("BTC-USD")
     history = btc_data.history(start=start_date, end=end_date)
