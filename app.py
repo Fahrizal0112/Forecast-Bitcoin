@@ -59,5 +59,34 @@ def get_bitcoin_forecast(days):
 
     return jsonify(forecast_data)
 
+@app.route('/bitcoin_buy_recommendation', methods=['GET'])
+def get_bitcoin_buy_recommendation():
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=365)
+    
+    btc_data = yf.Ticker("BTC-USD")
+    history = btc_data.history(start=start_date, end=end_date)
+    
+    history['MA50'] = history['Close'].rolling(window=50).mean()
+    history['MA200'] = history['Close'].rolling(window=200).mean()
+    
+    latest = history.iloc[-1]
+    
+    if latest['MA50'] > latest['MA200']:
+        recommendation = "Buy"
+        reason = "The 50-day moving average is above the 200-day moving average, indicating a potential uptrend."
+    else:
+        recommendation = "Hold"
+        reason = "The 50-day moving average is below the 200-day moving average, indicating a potential downtrend."
+    
+    return jsonify({
+        "recommendation": recommendation,
+        "reason": reason,
+        "current_price": latest['Close'],
+        "MA50": latest['MA50'],
+        "MA200": latest['MA200'],
+        "date": latest.name.strftime('%Y-%m-%d')
+    })
+
 if __name__ == '__main__':
     app.run(debug=True)
