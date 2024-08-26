@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import yfinance as yf
 from datetime import datetime, timedelta
 import pandas as pd
@@ -6,7 +7,7 @@ from statsmodels.tsa.arima.model import ARIMA
 import numpy as np
 
 app = Flask(__name__)
-
+CORS(app)
 @app.route('/bitcoin_price', methods=['GET'])
 def get_bitcoin_price():
     days = request.args.get('days', default=365, type=int)
